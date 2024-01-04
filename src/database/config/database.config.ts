@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { join } from "path";
+import { DataSource, DataSourceOptions } from "typeorm";
 
 const DatabaseConfig: TypeOrmModuleOptions = {
     type: 'postgres',
@@ -9,7 +10,7 @@ const DatabaseConfig: TypeOrmModuleOptions = {
     username: 'postgres',
     password: 'postgres_pw',
     entities: ['dist/**/*.entity.{ts,js}'],
-    migrations: [join(__dirname, '..', '..', '..', 'src', 'database', 'migrations', '*.{js|ts}')],
+    migrations: [join(process.cwd(), 'src', 'database', 'migrations', '*.{js|ts}')],
     // autoLoadEntities: true,
     retryAttempts: 3,
     retryDelay: 5000,
@@ -17,3 +18,5 @@ const DatabaseConfig: TypeOrmModuleOptions = {
 };
 
 export default DatabaseConfig;
+
+export const Source = new DataSource(DatabaseConfig as DataSourceOptions);
