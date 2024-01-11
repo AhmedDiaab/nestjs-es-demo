@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # NestJS Application
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3020:3020"
+    depends_on:
+      - elasticsearch
+    networks:
+      - esnetwork
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - esnetwork
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:8.3.2
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - elasticsearch
+    networks:
+      - esnetwork
+networks:
+  esnetwork:

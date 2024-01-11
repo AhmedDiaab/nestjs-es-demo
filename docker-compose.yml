@@ -1,9 +1,60 @@
 version: '3'
-
 services:
-  elasticsearch:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  es1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    container_name: es1
+    environment:
+      cluster.name: "docker-cluster"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      TAKE_FILE_OWNERSHIP: "true"
+      discovery.zen.ping.unicast.hosts: "es2,es3"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data/esdata1:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
+      - 9200:9200
+      - 9300:9300
+  es2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    container_name: es2
+    environment:
+      cluster.name: "docker-cluster"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      TAKE_FILE_OWNERSHIP: "true"
+      discovery.zen.ping.unicast.hosts: "es1,es3"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data/esdata2:/usr/share/elasticsearch/data
+  es3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    container_name: es3
+    environment:
+      cluster.name: "docker-cluster"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      TAKE_FILE_OWNERSHIP: "true"
+      discovery.zen.ping.unicast.hosts: "es1,es2"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data/esdata3:/usr/share/elasticsearch/data
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-es
+    environment:
+        - GF_SECURITY_ADMIN_PASSWORD=12345
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+    user: "0"
